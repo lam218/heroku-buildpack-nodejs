@@ -216,3 +216,17 @@ summarize_build | output "$LOG_FILE"
 
 warn_no_start "$LOG_FILE"
 warn_unmet_dep "$LOG_FILE"
+HOME="$BUILD_DIR" GIT_DIR=".git" $VENDORED_NODE/bin/node $VENDORED_NPM/cli.js install 2>&1 | indent
+if [ "${PIPESTATUS[*]}" != "0 0" ]; then
+  echo " !     Failed to install dependencies with npm"
+  exit 1
+else
+  echo "       Dependencies installed"
+fi
+
+# repack cache with new assets
+if [ -d $CACHE_TARGET_DIR ]; then
+  rm -rf $CACHE_STORE_DIR
+  mkdir -p $(dirname $CACHE_STORE_DIR)
+  cp -a $CACHE_TARGET_DIR $CACHE_STORE_DIR
+fi
